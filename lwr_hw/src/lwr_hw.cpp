@@ -509,6 +509,14 @@ namespace lwr_hw
 
   void LWRHW::doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list)
   {
+      // NOTE: DEBUGGING
+      int counter = 0;
+      for ( std::list<hardware_interface::ControllerInfo>::const_iterator it = start_list.begin(); it != start_list.end(); ++it )
+          std::cout << "start_list #" << ++counter << " >> name: " << it->name << " | type: " << it->type << " | hw_interface: " << it->hardware_interface << std::endl;
+      counter = 0;
+      for ( std::list<hardware_interface::ControllerInfo>::const_iterator it = stop_list.begin(); it != stop_list.end(); ++it )
+          std::cout << "stop_list #" << ++counter << " >> name: " << it->name << " | type: " << it->type << " | hw_interface: " << it->hardware_interface << std::endl;
+      
     // at this point, we now that there is only one controller that ones to command joints
     ControlStrategy desired_strategy = JOINT_POSITION; // default
 
@@ -532,6 +540,11 @@ namespace lwr_hw
         std::cout << "Request to switch to hardware_interface::PositionCartesianInterface (CARTESIAN_IMPEDANCE)" << std::endl;
         desired_strategy = CARTESIAN_IMPEDANCE;
         break;
+      }
+      
+      else
+      {
+          std::cout << "Request to switch to " << it->hardware_interface << " (WHAT is this?!) : I'll continue looking..." << std::endl;
       }
     }
 
