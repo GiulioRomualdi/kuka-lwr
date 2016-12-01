@@ -30,6 +30,7 @@ public:
   void setIP(std::string hintToRemoteHost){hintToRemoteHost_ = hintToRemoteHost; ip_set_ = true;};
   float getSampleTime(){return sampling_rate_;};
   bool setEmergencyEvent(bool eevent){std::swap(eevent_,eevent); return eevent;}; // This function sets the emergency event flag
+  bool setAllowPositionControl(bool b_in){std::swap(allow_position_control_,b_in); return b_in;}; // This function sets the allow position control flag
   
   // Init, read, and write, with FRI hooks
   bool init()
@@ -171,7 +172,7 @@ public:
   void doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list)
   {
     // at this point, we now that there is only one controller that ones to command joints
-    ControlStrategy desired_strategy = JOINT_POSITION; // default
+    ControlStrategy desired_strategy = JOINT_IMPEDANCE; // default
 
     // If any of the controllers in the start list works on a velocity interface, the switch can't be done.
     for ( std::list<hardware_interface::ControllerInfo>::const_iterator it = start_list.begin(); it != start_list.end(); ++it )
@@ -180,6 +181,11 @@ public:
       {
         std::cout << "Request to switch to hardware_interface::PositionJointInterface (JOINT_POSITION)" << std::endl;
         desired_strategy = JOINT_POSITION;
+        if(!allow_position_control_)
+        {
+            std::cout << "You are no longer allowed to use Position Control. Using instead Joint Impedance Control. Safety first!." << std::endl;
+            desired_strategy = JOINT_IMPEDANCE;
+        }
         break;
       }
       else if( it->hardware_interface.compare( std::string("hardware_interface::EffortJointInterface") ) == 0 )
@@ -245,6 +251,7 @@ private:
   std::string hintToRemoteHost_;
   bool ip_set_ = false;
   bool eevent_ = false; // Variable to manage emergency events, false by default
+  bool allow_position_control_ =  true;
 
   // low-level interface
   boost::shared_ptr<friRemote> device_;
