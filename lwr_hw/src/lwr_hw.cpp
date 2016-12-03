@@ -302,6 +302,9 @@ namespace lwr_hw
   // Register the limits of the joint specified by joint_name and\ joint_handle. The limits are
   // retrieved from the urdf_model.
   // Return the joint's type, lower position limit, upper position limit, and effort limit.
+  // TODO: register limits for damping, additional_torque, and all cartesian variables
+  // NOTE: only useful part of having stiffness joints in the urdf: using them for setting the limits here...
+  // TODO: check that stiffness limits get actually registered...
   void LWRHW::registerJointLimits(const std::string& joint_name,
                            const hardware_interface::JointHandle& joint_handle_effort,
                            const hardware_interface::JointHandle& joint_handle_position,
@@ -394,6 +397,7 @@ namespace lwr_hw
     pj_sat_interface_.enforceLimits(period);
     pj_limits_interface_.enforceLimits(period);
     sj_sat_interface_.enforceLimits(period);
+    // TODO: the following seem unset... make use of them, and add Cartesian limits handling
     sj_limits_interface_.enforceLimits(period);
     dj_sat_interface_.enforceLimits(period);
     dj_limits_interface_.enforceLimits(period);
