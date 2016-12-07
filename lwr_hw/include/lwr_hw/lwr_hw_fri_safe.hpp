@@ -23,7 +23,7 @@ class LWRHWFRI : public LWRHW
 
 public:
 
-  LWRHWFRI() : LWRHW(), last_stiffness_(n_joints_,0.0), last_cart_stiffness(6,0.0) { }
+  LWRHWFRI() : LWRHW() { }
 
   ~LWRHWFRI() { stopKRCComm_ = true; KRCCommThread_.get()->join();}
 
@@ -37,10 +37,6 @@ public:
       if(!eevent)
       {
           emergency_scaling_factor = 1.0;
-          for(int i=0; i<n_joints_; ++i)
-              last_stiffness_[i] = joint_stiffness_command_[i];
-          for(int i=0; i < 6; i++)
-              last_cart_stiffness[i] = cart_stiff_command_[i];
       }
       return eevent;
   };
@@ -133,7 +129,7 @@ public:
             }
             for(int i=0; i < 6; i++)
             {
-                newCartStiff[i] = emergency_scaling_factor*last_cart_stiffness[i];
+                newCartStiff[i] = emergency_scaling_factor*cart_stiff_command_[i];
                 newCartDamp[i] = 0.0;
                 newAddFT[i] = 0.0;
             }
@@ -180,7 +176,7 @@ public:
                 // This is the reaction to an emergency event. For now this sets all variables (stiffness, damping, and ext_torque) to zero, position to the last commanded joint position
                 newJntAddTorque[j] = 0.0;
                 // using an extra variable because the command could increase with time, in principle faster than the scaling factor
-                newJntStiff[j] = emergency_scaling_factor*last_stiffness_[j];
+                newJntStiff[j] = emergency_scaling_factor*joint_stiffness_command_[j];
                 newJntDamp[j] = 0.7;
             }
             emergency_scaling_factor *= 0.98175; // from 1000.0 to 0.1 in 500 runs
@@ -291,8 +287,6 @@ private:
   bool eevent_ = false; // Variable to manage emergency events, false by default
   bool allow_position_control_ =  true;
   double emergency_scaling_factor; // Scale the stiffness in case of an emergency event, making it smooth to transition from the current to a 0 stiffness value
-  std::vector<double> last_stiffness_;
-  std::vector<double> last_cart_stiffness;
 
   // low-level interface
   boost::shared_ptr<friRemote> device_;
