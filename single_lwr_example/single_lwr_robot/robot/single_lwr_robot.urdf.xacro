@@ -32,6 +32,13 @@
 		<static>true</static>>
 	</gazebo>
 
+	<link name="world" />
+	<joint name="world_joint"  type="fixed">
+	  <origin xyz="0 0 0" rpy="0 0 0" />
+	  <parent link="world"/>
+	  <child link="box"/>
+	</joint>
+
 	<!-- using the models -->
 	<xacro:kuka_lwr parent="box" name="lwr">
 		<origin xyz="0 0 1" rpy="0 0 0"/>
