@@ -9,6 +9,14 @@
 			</plugin>
 		</gazebo>
 
+		<gazebo>
+		  <plugin name="FTsensor_controller" filename="libgazebo_ros_ft_sensor.so">
+		    <updateRate>100.0</updateRate>
+		    <topicName>${name}/ft_sensor</topicName>
+		    <jointName>sensor_joint</jointName>
+		  </plugin>   
+		</gazebo>
+
 		<gazebo reference="${name}_base_link">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
@@ -47,6 +55,16 @@
 		<gazebo reference="${name}_7_link">
 			<gravity>true</gravity>
 			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="end_effector">
+			<gravity>true</gravity>
+			<material>Gazebo/Red</material>
+		</gazebo>
+
+		<gazebo reference="sensor_joint">
+		  <provideFeedback>true</provideFeedback>
+		  <disableFixedJointLumping>true</disableFixedJointLumping>
 		</gazebo>
 
 	</xacro:macro>
