@@ -28,7 +28,7 @@
 
 	<!-- the urdf/sdf parameter -->
 	<param name="robot_description" command="$(find xacro)/xacro.py $(find single_lwr_robot)/robot/$(arg robot_name).urdf.xacro"/>
-	
+		
 	<!-- joint and robot state publishers of the full robot description -->
 	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
 		<rosparam param="source_list">[/lwr/joint_states]</rosparam>
@@ -44,7 +44,7 @@
 		<!-- spawn the robot in gazebo -->
 		<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name)"  respawn="false" output="screen" />
 		<!-- spawn the workspace box -->
-		<node name="spawn_urdf_ws" pkg="gazebo_ros" type="spawn_model" args="-file $(find single_lwr_robot)/robot/ws_box.urdf -urdf -model ws_box"  respawn="false" output="screen" />
+		<node name="spawn_urdf_ws" pkg="gazebo_ros" type="spawn_model" args="-file $(find single_lwr_robot)/robot/ws_box.sdf -sdf -model ws_box"  respawn="false" output="screen" />
 
 		<!-- enable/disable gui at will, the rviz listens to the simulation -->
 		<include file="$(find gazebo_ros)/launch/empty_world.launch">
