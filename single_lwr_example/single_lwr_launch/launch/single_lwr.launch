@@ -43,8 +43,10 @@
 	<group if="$(arg use_lwr_sim)">
 		<!-- spawn the robot in gazebo -->
 		<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name)"  respawn="false" output="screen" />
-		<!-- spawn the workspace box -->
-		<node name="spawn_urdf_ws" pkg="gazebo_ros" type="spawn_model" args="-file $(find single_lwr_robot)/robot/ws_box.sdf -sdf -model ws_box"  respawn="false" output="screen" />
+
+	<!-- spawn the table -->
+	<node name="spawn_sdf_table" pkg="gazebo_ros" type="spawn_model" args="-file $(find single_lwr_robot)/robot/table.sdf -sdf -model table"  respawn="false" output="screen" />
+
 
 		<!-- enable/disable gui at will, the rviz listens to the simulation -->
 		<include file="$(find gazebo_ros)/launch/empty_world.launch">
