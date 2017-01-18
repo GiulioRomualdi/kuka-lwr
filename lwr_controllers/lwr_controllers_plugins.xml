@@ -5,6 +5,11 @@
       Information about external torque, Jacobian, etc.
     </description>
   </class>
+
+  <class name="lwr_controllers/JointInverseDynamics" type="lwr_controllers::JointInverseDynamics" base_class_type="controller_interface::ControllerBase">
+    <description>
+    </description>
+  </class>
   
   <class name="lwr_controllers/CartesianImpedanceController" type="lwr_controllers::CartesianImpedanceController" base_class_type="controller_interface::ControllerBase">
     <description>
