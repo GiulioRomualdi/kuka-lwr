@@ -56,17 +56,23 @@ public:
       joint_position_prev_[j] = joint_position_[j];
       joint_position_[j] += angles::shortest_angular_distance(joint_position_[j],
                               sim_joints_[j]->GetAngle(0).Radian());
-      joint_position_kdl_(j) = joint_position_[j];
       // derivate velocity as in the real hardware instead of reading it from simulation
-      joint_velocity_[j] = filters::exponentialSmoothing((joint_position_[j] - joint_position_prev_[j])/period.toSec(), joint_velocity_[j], 0.2);
+      joint_velocity_prev_[j] = joint_velocity_[j];
+      joint_velocity_[j] = filters::exponentialSmoothing((joint_position_[j] - joint_position_prev_[j])/period.toSec(), joint_velocity_prev_[j], 0.2);
+      // obtain joints acceleration using an exponential smoothing filter
+      joint_acceleration_[j] = filters::exponentialSmoothing((joint_velocity_[j] - joint_velocity_prev_[j])/period.toSec(), joint_acceleration_[j], 0.2);
       joint_effort_[j] = sim_joints_[j]->GetForce((int)(0));
       joint_stiffness_[j] = joint_stiffness_command_[j];
+
+      joint_position_kdl_(j) = joint_position_[j];
+      joint_velocity_kdl_(j) = joint_velocity_[j];
+      joint_acceleration_kdl_(j) = joint_acceleration_[j];
     }
   }
 
   void write(ros::Time time, ros::Duration period)
   {
-    enforceLimits(period);
+    //enforceLimits(period);
 
     switch (getControlStrategy())
     {
@@ -79,7 +85,9 @@ public:
           // so enable this when I find the SetMaxForce reset.
           // sim_joints_[j]->SetMaxForce(0, joint_effort_limits_[j]);
 #if GAZEBO_MAJOR_VERSION >= 4
-          sim_joints_[j]->SetPosition(0, joint_position_command_[j]);
+          // sim_joints_[j]->SetPosition(0, joint_position_command_[j]);
+	  f_dyn_solver_->JntToGravity(joint_position_kdl_, gravity_effort_);
+	  sim_joints_[j]->SetForce(0, gravity_effort_(j) + 1000.0*(joint_position_command_[j] - joint_position_[j]) - 10.0*(joint_velocity_[j]));
 #else
           sim_joints_[j]->SetAngle(0, joint_position_command_[j]);
 #endif
@@ -108,16 +116,23 @@ public:
         break;
 
       case JOINT_IMPEDANCE:
-        // compute the gracity term
+        // compute the fdyn term
         f_dyn_solver_->JntToGravity(joint_position_kdl_, gravity_effort_);
-        
+	if (i_dyn_solver_->CartToJnt(joint_position_kdl_, 
+				     joint_velocity_kdl_, 
+				     joint_acceleration_kdl_, 
+				     joint_wrenches_,
+				     fdyn_effort_) < 0)
+	  {
+	    std::cout << "WARNING:i dyn failed" << std::endl;
+	  }
+	
         for(int j=0; j < n_joints_; j++)
         {
           // replicate the joint impedance control strategy
           // tau = k (q_FRI - q_msr) + tau_FRI + D(q_msr) + f_dyn(q_msr)
-          const double stiffness_effort = 0.0;//10.0*( joint_position_command_[j] - joint_position_[j] ); // joint_stiffness_command_[j]*( joint_position_command_[j] - joint_position_[j] );
-          //double damping_effort = joint_damping_command_[j]*( joint_velocity_[j] );
-          const double effort = stiffness_effort + joint_effort_command_[j] + gravity_effort_(j);
+	  // for now tau = tau_FRI + f_dyn
+	  const double effort = fdyn_effort_(j);
           sim_joints_[j]->SetForce(0, effort);
         }
         break;

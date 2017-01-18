@@ -113,6 +113,8 @@ public:
   joint_position_,
   joint_position_prev_,
   joint_velocity_,
+  joint_velocity_prev_,
+  joint_acceleration_,
   joint_effort_,
   joint_stiffness_,
   joint_damping_,
@@ -146,7 +148,9 @@ public:
   // KDL stuff to compute ik, gravity term, etc.
   KDL::Chain lwr_chain_;
   boost::scoped_ptr<KDL::ChainDynParam> f_dyn_solver_;
-  KDL::JntArray joint_position_kdl_, gravity_effort_;
+  boost::scoped_ptr<KDL::ChainIdSolver_RNE> i_dyn_solver_;
+  KDL::JntArray joint_position_kdl_, joint_velocity_kdl_, joint_acceleration_kdl_, gravity_effort_, fdyn_effort_;
+  KDL::Wrenches joint_wrenches_;
   KDL::Vector gravity_;
 
 private:

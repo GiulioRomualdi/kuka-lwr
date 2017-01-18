@@ -43,6 +43,8 @@ namespace lwr_hw
     joint_position_.resize(n_joints_);
     joint_position_prev_.resize(n_joints_);
     joint_velocity_.resize(n_joints_);
+    joint_velocity_prev_.resize(n_joints_);
+    joint_acceleration_.resize(n_joints_);
     joint_effort_.resize(n_joints_);
     joint_stiffness_.resize(n_joints_);
     joint_damping_.resize(n_joints_);
@@ -99,6 +101,8 @@ namespace lwr_hw
       joint_position_[j] = 0.0;
       joint_position_prev_[j] = 0.0;
       joint_velocity_[j] = 0.0;
+      joint_velocity_prev_[j] = 0.0;
+      joint_acceleration_[j] = 0.0;
       joint_effort_[j] = 0.0;
       joint_stiffness_[j] = 0.0;
       joint_damping_[j] = 0.0;
@@ -448,9 +452,14 @@ namespace lwr_hw
     ROS_INFO("Number of joints in chain: %d", lwr_chain_.getNrOfJoints());
 
     f_dyn_solver_.reset(new KDL::ChainDynParam(lwr_chain_,gravity_));
+    i_dyn_solver_.reset(new KDL::ChainIdSolver_RNE(lwr_chain_, gravity_));
 
     joint_position_kdl_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
+    joint_velocity_kdl_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
+    joint_acceleration_kdl_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
+    joint_wrenches_ = KDL::Wrenches(lwr_chain_.getNrOfJoints());
     gravity_effort_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
+    fdyn_effort_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
 
     return true;
   }
@@ -551,6 +560,8 @@ namespace lwr_hw
       pj_sat_interface_.reset();
       pj_limits_interface_.reset();
     }
+
+    desired_strategy = JOINT_IMPEDANCE; // default
 
     if(desired_strategy == getControlStrategy())
     {
