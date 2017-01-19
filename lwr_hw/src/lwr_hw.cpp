@@ -459,6 +459,7 @@ namespace lwr_hw
     joint_acceleration_kdl_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
     joint_wrenches_ = KDL::Wrenches(lwr_chain_.getNrOfJoints());
     gravity_effort_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
+    coriolis_effort_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
     fdyn_effort_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
 
     return true;
@@ -560,8 +561,6 @@ namespace lwr_hw
       pj_sat_interface_.reset();
       pj_limits_interface_.reset();
     }
-
-    desired_strategy = JOINT_IMPEDANCE; // default
 
     if(desired_strategy == getControlStrategy())
     {
