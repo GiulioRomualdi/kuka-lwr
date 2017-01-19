@@ -41,12 +41,15 @@ namespace lwr_controllers {
     // get joint positions
     for(size_t i=0; i<joint_handles_.size(); i++) {
       K_(i) = 10.0;
-      D_(i) = 1.0;
+      D_(i) = 30.0;
       q_msr_(i) = joint_handles_[i].getPosition();
       dotq_msr_(i) = joint_handles_[i].getVelocity();
       q_des_(i) = 0;
     }
     q_des_(5) = 1.57; 
+    q_des_(3) = 1.57;
+    q_des_(2) = 1.57;
+    q_des_(6) = 3.14;
   }
 
   void JointInverseDynamics::update(const ros::Time& time, const ros::Duration& period)
@@ -59,23 +62,18 @@ namespace lwr_controllers {
 
     //Compute control law and set M_tau_cmd to 0
     for(size_t i=0; i<joint_handles_.size(); i++) {
-      std::cout<<q_des_(i) - q_msr_(i)<<std::endl;
-      //tau_cmd_(i) = K_(i) * (q_des_(i) - q_msr_(i)) - D_(i)*dotq_msr_(i);
-      tau_cmd_(i) = 0;
-      M_tau_cmd_(i) = 0;
+      tau_cmd_(i) = K_(i) * (q_des_(i) - q_msr_(i)) - D_(i)*dotq_msr_(i);
+      //M_tau_cmd_(i) = 0;
     }
-    tau_cmd(5) = 5;
 
     dyn_param_solver_->JntToMass(q_msr_, M_);
 
     // Evaluate M * tau_cmd
-    for(size_t i=0; i<joint_handles_.size(); i++) 
-      for(size_t j=0; j<joint_handles_.size(); j++)
-	  M_tau_cmd_(i) += M_(i,j) * tau_cmd_(j);
+    M_tau_cmd_.data = M_.data * tau_cmd_.data;
 
-    // set tau
+    // Set () Tau ()
     for(size_t i=0; i<joint_handles_.size(); i++) 
-      joint_handles_[i].setCommand(M_tau_cmd_(i));
+      joint_handles_[i].setCommand(tau_cmd_(i));
   }
 
 
