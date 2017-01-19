@@ -141,6 +141,7 @@ public:
     ros::Time sim_time_ros(gz_time_now.sec, gz_time_now.nsec);
     ros::Duration sim_period = sim_time_ros - last_update_sim_time_ros_;
 
+
     // Check if we should update the controllers
     if(sim_period >= control_period_) 
     {
