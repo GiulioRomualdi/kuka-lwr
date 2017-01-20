@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <library path="lib/liblwr_controllers">
   
   <class name="arm_state_controller/ArmStateController" type="arm_state_controller::ArmStateController" base_class_type="controller_interface::ControllerBase">
@@ -6,8 +7,9 @@
     </description>
   </class>
 
-  <class name="lwr_controllers/JointInverseDynamics" type="lwr_controllers::JointInverseDynamics" base_class_type="controller_interface::ControllerBase">
+  <class name="lwr_controllers/CartesianPositionController" type="lwr_controllers::CartesianPositionController" base_class_type="controller_interface::ControllerBase">
     <description>
+      Implement a cartesian position controller using inverse joint dynamics and inverse kinematics
     </description>
   </class>
   

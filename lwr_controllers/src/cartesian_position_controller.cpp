@@ -2,23 +2,29 @@
 #include <pluginlib/class_list_macros.h>
 //#include <algorithm>
 //#include <kdl/tree.hpp>
-//#include <kdl/chainfksolvervel_recursive.hpp>
+#include <kdl/chainfksolverpos_recursive.hpp>
+#include <kdl/chainiksolvervel_wdls.hpp>
 //#include <kdl_parser/kdl_parser.hpp>
 //#include <urdf/model.h>
-
-#include <lwr_controllers/joint_inverse_dynamics.h>
+#include <kdl/chainiksolverpos_lma.hpp>
+#include <angles/angles.h>
+#include <lwr_controllers/cartesian_position_controller.h>
 
 namespace lwr_controllers {
 
-  JointInverseDynamics::JointInverseDynamics() {}
+  CartesianPositionController::CartesianPositionController() {}
 
-  JointInverseDynamics::~JointInverseDynamics() {}
+  CartesianPositionController::~CartesianPositionController() {}
 
-  bool JointInverseDynamics::init(hardware_interface::EffortJointInterface *robot, ros::NodeHandle &n)
+  bool CartesianPositionController::init(hardware_interface::EffortJointInterface *robot, ros::NodeHandle &n)
   {
     KinematicChainControllerBase<hardware_interface::EffortJointInterface>::init(robot, n);
 
     dyn_param_solver_.reset(new KDL::ChainDynParam(kdl_chain_, gravity_));
+    // fk_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
+    // ik_vel_solver_.reset(new KDL::ChainIkSolverVel_wdls(kdl_chain_));
+    //    ik_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(kdl_chain_, joint_limits_.min, joint_limits_.max, *fk_solver_, *ik_vel_solver_));
+    ik_solver_.reset(new KDL::ChainIkSolverPos_LMA(kdl_chain_));
 
     K_.resize(kdl_chain_.getNrOfJoints());
     D_.resize(kdl_chain_.getNrOfJoints());
@@ -32,52 +38,63 @@ namespace lwr_controllers {
     M_.resize(kdl_chain_.getNrOfJoints());
     M_tau_cmd_.resize(kdl_chain_.getNrOfJoints());    
 
-    sub_posture_ = nh_.subscribe("set_qd", 1, &JointInverseDynamics::set_qd, this);
+    sub_posture_ = nh_.subscribe("set_qd", 1, &CartesianPositionController::set_qd, this);
+
+    des_pose_ = KDL::Vector::Zero();
+    des_attitude_ = KDL::Rotation::Identity();
+    
     return true;
   }
 
-  void JointInverseDynamics::starting(const ros::Time& time)
+  void CartesianPositionController::starting(const ros::Time& time)
   {
     // get joint positions
     for(size_t i=0; i<joint_handles_.size(); i++) {
-      K_(i) = 10.0;
+      K_(i) = 30.0;
       D_(i) = 30.0;
       q_msr_(i) = joint_handles_[i].getPosition();
       dotq_msr_(i) = joint_handles_[i].getVelocity();
-      q_des_(i) = 0;
     }
-    q_des_(5) = 1.57; 
-    q_des_(3) = 1.57;
-    q_des_(2) = 1.57;
-    q_des_(6) = 3.14;
+    
+    des_pose_.z(0.2);
+    des_pose_.y(0.2);
+    des_attitude_.DoRotY(-1.57);
+    des_pose_.x(-0.7);
+    x_des_ = KDL::Frame(des_attitude_, des_pose_);
+
+    ik_solver_->CartToJnt(q_msr_, x_des_, q_des_);
+
+    for(int i=0; i<joint_handles_.size(); i++) {
+      q_des_(i) =  angles::normalize_angle(q_des_(i));
+    }
   }
 
-  void JointInverseDynamics::update(const ros::Time& time, const ros::Duration& period)
+  void CartesianPositionController::update(const ros::Time& time, const ros::Duration& period)
   {
     // get joint positions	
     for(size_t i=0; i<joint_handles_.size(); i++) {
       q_msr_(i) = joint_handles_[i].getPosition();
       dotq_msr_(i) = joint_handles_[i].getVelocity();
     }
-
-    //Compute control law and set M_tau_cmd to 0
+  
+    // compute control law
     for(size_t i=0; i<joint_handles_.size(); i++) {
       tau_cmd_(i) = K_(i) * (q_des_(i) - q_msr_(i)) - D_(i)*dotq_msr_(i);
-      //M_tau_cmd_(i) = 0;
+      std::cout<< "joint: "<< i << " error: "<< q_des_(i) - q_msr_(i) << " q_des: " <<q_des_(i)<<std::endl;
     }
 
     dyn_param_solver_->JntToMass(q_msr_, M_);
 
-    // Evaluate M * tau_cmd
+    // evaluate M * tau_cmd
     M_tau_cmd_.data = M_.data * tau_cmd_.data;
 
     // Set () Tau ()
     for(size_t i=0; i<joint_handles_.size(); i++) 
-      joint_handles_[i].setCommand(tau_cmd_(i));
+      joint_handles_[i].setCommand(M_tau_cmd_(i));
   }
 
 
-  void JointInverseDynamics::set_qd(const std_msgs::Float64MultiArray::ConstPtr &msg){
+  void CartesianPositionController::set_qd(const std_msgs::Float64MultiArray::ConstPtr &msg){
     if (msg->data.size() == 0) {
       ROS_INFO("Desired configuration must be: %lu dimension", joint_handles_.size());
     }
@@ -94,6 +111,6 @@ namespace lwr_controllers {
 
 }// namespace
 
-PLUGINLIB_EXPORT_CLASS( lwr_controllers::JointInverseDynamics, controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS( lwr_controllers::CartesianPositionController, controller_interface::ControllerBase)
 
 

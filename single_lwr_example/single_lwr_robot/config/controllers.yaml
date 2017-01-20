@@ -39,7 +39,7 @@ lwr:
     root_name: lwr_base_link
     tip_name: lwr_7_link
 
-  #   Joint Impedance Controllers
+  # Joint Impedance Controllers
   joint_impedance_controller:
     type: lwr_controllers/JointImpedanceController
     root_name: lwr_base_link
@@ -47,9 +47,9 @@ lwr:
     stiffness_gains: 300
     damping_gains: .7
 
-  # Inverse Dynamics Controllers
-  joint_inverse_dynamics:
-    type: lwr_controllers/JointInverseDynamics
+  # Cartesian Position Controller
+  cartesian_position_controller:
+    type: lwr_controllers/CartesianPositionController
     root_name: lwr_base_link
     tip_name: lwr_7_link
 
