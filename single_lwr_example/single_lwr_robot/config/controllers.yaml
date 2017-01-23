@@ -53,6 +53,12 @@ lwr:
     root_name: lwr_base_link
     tip_name: lwr_7_link
 
+  # Cartesian Inverse Dynamics Controller
+  cartesian_inverse_dynamics_controller:
+    type: lwr_controllers/CartesianInverseDynamicsController
+    root_name: lwr_base_link
+    tip_name: lwr_7_link
+
   # Inverse Dynamics Controllers
   inverse_dynamics_controller:
     type: lwr_controllers/InverseDynamicsController

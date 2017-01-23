@@ -12,6 +12,12 @@
       Implement a cartesian position controller using inverse joint dynamics and inverse kinematics
     </description>
   </class>
+
+  <class name="lwr_controllers/CartesianInverseDynamicsController" type="lwr_controllers::CartesianInverseDynamicsController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      Implement an inverse dynamics controller in operational space
+    </description>
+  </class>
   
   <class name="lwr_controllers/CartesianImpedanceController" type="lwr_controllers::CartesianImpedanceController" base_class_type="controller_interface::ControllerBase">
     <description>
