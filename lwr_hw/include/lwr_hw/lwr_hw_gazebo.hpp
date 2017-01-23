@@ -147,7 +147,10 @@ public:
 	  //const double effort = gravity_effort_(j) + coriolis_effort_(j) * joint_velocity_kdl_(j) + joint_effort_command_[j];
 
 	  // inverse dynamics (idsolver) + tau_FRI
-	  const double effort = fdyn_effort_(j) + joint_effort_command_[j];
+	  //const double effort = fdyn_effort_(j) + joint_effort_command_[j];
+
+	  // gravity compensation only (it seems that fdyn = G)
+	  const double effort = gravity_effort_(j) + joint_effort_command_[j];
 	  
           sim_joints_[j]->SetForce(0, effort);
         }

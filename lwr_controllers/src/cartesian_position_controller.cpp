@@ -36,6 +36,7 @@ namespace lwr_controllers {
     q_des_.resize(kdl_chain_.getNrOfJoints());
     tau_cmd_.resize(kdl_chain_.getNrOfJoints());
     M_.resize(kdl_chain_.getNrOfJoints());
+    C_.resize(kdl_chain_.getNrOfJoints());
     M_tau_cmd_.resize(kdl_chain_.getNrOfJoints());    
 
     sub_posture_ = nh_.subscribe("set_qd", 1, &CartesianPositionController::set_qd, this);
@@ -80,15 +81,15 @@ namespace lwr_controllers {
     // compute control law
     for(size_t i=0; i<joint_handles_.size(); i++) {
       tau_cmd_(i) = K_(i) * (q_des_(i) - q_msr_(i)) - D_(i)*dotq_msr_(i);
-      std::cout<< "joint: "<< i << " error: "<< q_des_(i) - q_msr_(i) << " q_des: " <<q_des_(i)<<std::endl;
     }
 
     dyn_param_solver_->JntToMass(q_msr_, M_);
+    dyn_param_solver_->JntToCoriolis(q_msr_, dotq_msr_, C_);
 
     // evaluate M * tau_cmd
-    M_tau_cmd_.data = M_.data * tau_cmd_.data;
+    M_tau_cmd_.data = M_.data * tau_cmd_.data + C_.data;
 
-    // Set () Tau ()
+    // set tau
     for(size_t i=0; i<joint_handles_.size(); i++) 
       joint_handles_[i].setCommand(M_tau_cmd_(i));
   }

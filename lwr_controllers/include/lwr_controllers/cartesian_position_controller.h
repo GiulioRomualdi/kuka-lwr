@@ -9,7 +9,7 @@
 #include <boost/scoped_ptr.hpp>
 
 /*
-  tau_cmd_ = B(q) * y
+  tau_cmd_ = B(q) * y + C * dq
   y =  - Kp * q - Kd * dq + r
   r = Kp * q_d
   q_d = inverse_kinematics(x_d)
@@ -43,6 +43,7 @@ namespace lwr_controllers
    
     // inertial matrix evaluation
     KDL::JntSpaceInertiaMatrix M_;
+    KDL::JntArray C_;
     boost::scoped_ptr<KDL::ChainDynParam> dyn_param_solver_;
 
     // inverse kinematics
