@@ -410,9 +410,9 @@
 
 		<link name="end_effector">
 			<inertial>
-				<mass value="0.1"/>
+				<mass value="0.00001"/>
 				<origin xyz="0 0 0"/>
-				<cylinder_inertia_def radius="0.03" length="0.01" mass="0.1"/>
+				<cylinder_inertia_def radius="0.03" length="0.01" mass="0.00001"/>
 			</inertial>
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
