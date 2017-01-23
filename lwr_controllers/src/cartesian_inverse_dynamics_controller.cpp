@@ -19,7 +19,7 @@ namespace lwr_controllers {
     fk_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
     
     tau_fri_.resize(kdl_chain_.getNrOfJoints());
-    acc_cmd_.resize(kdl_chain_.getNrOfJoints());
+    acc_cmd_.resize(6);
     B_.resize(kdl_chain_.getNrOfJoints());
     C_.resize(kdl_chain_.getNrOfJoints());
 
@@ -37,8 +37,10 @@ namespace lwr_controllers {
     for(size_t i=0; i<joint_handles_.size(); i++) {
       joint_msr_states_.q(i) = joint_handles_[i].getPosition();
       joint_msr_states_.qdot(i) = joint_handles_[i].getVelocity();
-      acc_cmd_(i) = 0;
     }
+
+    for(size_t i=0; i<6; i++)
+            acc_cmd_(i) = 0;
 
     acc_cmd_(0) = 0.5;
   }
@@ -120,4 +122,4 @@ namespace lwr_controllers {
 
 }// namespace
 
-PLUGINLIB_EXPORT_CLASS( lwr_controllers::CartesianInverseDynamicsController , controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(lwr_controllers::CartesianInverseDynamicsController , controller_interface::ControllerBase)
