@@ -403,7 +403,7 @@
 
 
 		<joint name="sensor_joint" type="fixed">
-			<origin xyz="0 0 0.005" rpy="0 0 0"/>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<parent link="${name}_7_link"/>
 			<child link="end_effector"/>
 		</joint>
@@ -411,11 +411,11 @@
 		<link name="end_effector">
 			<inertial>
 				<mass value="0.00001"/>
-				<origin xyz="0 0 0"/>
+				<origin xyz="0 0 0.005"/>
 				<cylinder_inertia_def radius="0.03" length="0.01" mass="0.00001"/>
 			</inertial>
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<origin xyz="0 0 0.005" rpy="0 0 0"/>
 				<geometry>
 				  <cylinder radius="0.03" length="0.01"/>
 				</geometry>
@@ -423,7 +423,7 @@
 			</visual>
 
 			<collision>
-			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<origin xyz="0 0 0.005" rpy="0 0 0"/>
 			<geometry>
 				<cylinder radius="0.03" length="0.01"/>
 			</geometry>
