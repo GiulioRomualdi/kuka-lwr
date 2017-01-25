@@ -26,37 +26,26 @@ namespace lwr_controllers
 
   private:
     
-    KDL::JntArray acc_cmd_, tau_fri_;
-    KDL::JntSpaceInertiaMatrix B_;
     KDL::JntArray C_;
-
-    // jacobians
-
-    // geometric jacobian written w.r.t the base frame
-    KDL::Jacobian J_base_;
-    // geometric jacobian written w.r.t the wall frame
-    KDL::Jacobian J_wall_;
-    // derivative of the geometric jacobian
-    KDL::Jacobian J_dot_;
+    KDL::JntArrayVel jnt_q_qdot_;
+    KDL::JntSpaceInertiaMatrix B_;
+    KDL::Jacobian J_base_, J_interm_, J_dot_;
+    KDL::Rotation R_w_base_, R_w_ee_;
+    KDL::Frame fk_frame_;
     
-    // rotation matrix from base to wall
-    KDL::Rotation R_w_base_;
-    
-    // solvers
     boost::scoped_ptr<KDL::ChainDynParam> dyn_param_solver_;
     boost::scoped_ptr<KDL::ChainJntToJacSolver> jacobian_solver_;
     boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_solver_;
     boost::scoped_ptr<KDL::ChainJntToJacDotSolver> jacobian_dot_solver_;
 
-    //
-    KDL::Vector p_wall_;
-
-    // controller gains
-    Eigen::MatrixXd Kp, Kd;
-
-
-    double time_;
-
+    Eigen::VectorXd xdot_;
+    Eigen::VectorXd acc_cmd_, tau_fri_;
+    Eigen::Matrix3d T_, T_dot_;
+    Eigen::MatrixXd T_a_, T_a_dot_;;
+    Eigen::MatrixXd wJ_a_, wJ_a_dot_;
+    Eigen::MatrixXd B_inv_, B_a_;
+    
+    double roll_, pitch_, yaw_;
   };
 
 } // namespace
