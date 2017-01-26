@@ -5,6 +5,9 @@
 #include <Eigen/LU>
 #include <angles/angles.h>
 
+#include <kdl_conversions/kdl_msg.h>
+#include <eigen_conversions/eigen_kdl.h>
+
 namespace lwr_controllers {
 
   CartesianInverseDynamicsController::CartesianInverseDynamicsController() {}
@@ -24,13 +27,16 @@ namespace lwr_controllers {
     B_.resize(kdl_chain_.getNrOfJoints());
     C_.resize(kdl_chain_.getNrOfJoints());
     J_base_.resize(kdl_chain_.getNrOfJoints());
-    J_interm_.resize(kdl_chain_.getNrOfJoints());
+    J_w_.resize(kdl_chain_.getNrOfJoints());
     J_dot_.resize(kdl_chain_.getNrOfJoints());
+
+    wrench_wrist_ = KDL::Wrench();
 
     xdot_ = Eigen::VectorXd(6);
     acc_cmd_ = Eigen::VectorXd(6);
     tau_fri_ = Eigen::VectorXd(kdl_chain_.getNrOfJoints());
 
+    sub_ = n.subscribe("/lwr/ft_sensor", 1, &CartesianInverseDynamicsController::ForceTorqueCallback, this);
     return true;
   }
 
@@ -88,9 +94,9 @@ namespace lwr_controllers {
     T_a_.block<3,3>(3,3) = T_.inverse();
 
     // evaluate wJ
-    KDL::changeBase(J_base_, R_w_base_, J_interm_);
+    KDL::changeBase(J_base_, R_w_base_, J_w_);
 
-    wJ_a_ = T_a_ * J_interm_.data;
+    wJ_a_ = T_a_ * J_w_.data;
     //
     ////////////////////////////////////////////////////////////////////////
 
@@ -119,14 +125,14 @@ namespace lwr_controllers {
     ////////////////////////////////////////////////////////////////////////
     //
     
-    // evaluation of dot(wJ_a) = d/dt{T_a} * J_interm_ + T_a * d/dt{J_interm_}
+    // evaluation of dot(wJ_a) = d/dt{T_a} * J_w_ + T_a * d/dt{J_w_}
     //
     // where d/dt{T_a} = [d/dt{eye(3)}, d/dt{zeros(3)}; 
     //                   d/dt{zeros(3)}, d/dt{inv(T(PHI))}]
     //                 = [zeros(3), zeros(3);
     //                    zeros(3), -inv(T) * d/dt{T} * int(T)]
     //
-    // and d/dt{J_interm_} = [R_w_base_, zeros(3);
+    // and d/dt{J_w_} = [R_w_base_, zeros(3);
     //                      zeros(3), R_w_base_] * d/dt{J_base_}
     
     // evaluate the derivative of the state using the analytical jacobian
@@ -143,16 +149,38 @@ namespace lwr_controllers {
     // and project it in the intermediate frame
     J_dot_.changeBase(R_w_base_);
 
-    wJ_a_dot_ = T_a_dot_ * J_interm_.data + T_a_ * J_dot_.data;
+    wJ_a_dot_ = T_a_dot_ * J_w_.data + T_a_ * J_dot_.data;
+    //
+    ////////////////////////////////////////////////////////////////////////
+
+
+    ////////////////////////////////////////////////////////////////////////
+    //
+    // evaluate force and torque compensation
+    // bF = 
+    //     [R_base_wrist, zeros(3);
+    //      zeros(3), R_base_wrist_] * wF
+    //
+    ////////////////////////////////////////////////////////////////////////
+    //
+
+    wrench_wrist_ = fk_frame_.M * wrench_wrist_;
+    tf::wrenchKDLToEigen(wrench_wrist_, bF_);      
+    
     //
     ////////////////////////////////////////////////////////////////////////
 
     // evaluate tau_cmd
-    tau_fri_ = C_.data + J_base_.data.transpose()* B_a_ * (acc_cmd_ - wJ_a_dot_ * joint_msr_states_.qdot.data);
+    tau_fri_ = C_.data + J_base_.data.transpose()* B_a_ * (bF_ + acc_cmd_ - wJ_a_dot_ * joint_msr_states_.qdot.data);
 
     // set tau
     for(size_t i = 0; i < joint_handles_.size(); i++) 
       joint_handles_[i].setCommand(tau_fri_(i));
+  }
+
+  void CartesianInverseDynamicsController::ForceTorqueCallback(const geometry_msgs::WrenchStamped::ConstPtr& msg)
+  {
+    tf::wrenchMsgToKDL(msg->wrench, wrench_wrist_);
   }
     
 } // namespace

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(lwr_controllers)
 
 find_package(catkin REQUIRED COMPONENTS
+  eigen_conversions
+  kdljacdot
   controller_interface
   control_msgs
   geometry_msgs
@@ -49,6 +51,8 @@ generate_messages(
 
 catkin_package(
   CATKIN_DEPENDS
+    eigen_conversions
+    kdljacdot
     controller_interface
     control_msgs
     geometry_msgs

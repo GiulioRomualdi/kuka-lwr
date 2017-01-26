@@ -11,6 +11,9 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+
+  <depend>eigen_conversions</depend>
+  <depend>kdljacdot</depend>
   <depend>angles</depend>
   <depend>controller_interface</depend> 
   <depend>control_msgs</depend> 
