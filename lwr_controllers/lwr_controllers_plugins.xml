@@ -15,9 +15,17 @@
 
   <class name="lwr_controllers/CartesianInverseDynamicsController" type="lwr_controllers::CartesianInverseDynamicsController" base_class_type="controller_interface::ControllerBase">
     <description>
-      Implement an inverse dynamics controller in operational space
+      Implement an inverse dynamics controller in operational space (the update() method is not implemented and should be implemented by inheriting
+      controllers that need dynamics inversion in operational space).
     </description>
   </class>
+
+  <class name="lwr_controllers/HybridImpedanceController" type="lwr_controllers::HybridImpedanceController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      Implement a hybrid impedance controller using the abstract controller CartesianInverseDynamicsController
+    </description>
+  </class>
+
   
   <class name="lwr_controllers/CartesianImpedanceController" type="lwr_controllers::CartesianImpedanceController" base_class_type="controller_interface::ControllerBase">
     <description>

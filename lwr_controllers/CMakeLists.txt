@@ -68,6 +68,7 @@ catkin_package(
 )
 
 add_library(${PROJECT_NAME}
+  src/hybrid_impedance_controller.cpp
   src/cartesian_inverse_dynamics_controller.cpp
   src/cartesian_position_controller.cpp
   src/joint_impedance_controller.cpp	

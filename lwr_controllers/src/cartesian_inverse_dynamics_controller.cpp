@@ -33,7 +33,7 @@ namespace lwr_controllers {
     tip_jacobian_solver_.reset(new KDL::ChainJntToJacSolver(kdl_chain_));
     ee_fk_solver_.reset(new KDL::ChainFkSolverPos_recursive(extended_chain_));
     ee_jacobian_dot_solver_.reset(new KDL::ChainJntToJacDotSolver(extended_chain_));
-    ee_jacobian_dot_solver_->setHybridRepresentation();
+    //ee_jacobian_dot_solver_->setHybridRepresentation();
     
     B_.resize(kdl_chain_.getNrOfJoints());
     C_.resize(kdl_chain_.getNrOfJoints());
@@ -45,10 +45,9 @@ namespace lwr_controllers {
     wrench_tip_ = KDL::Wrench();
 
     ws_xdot_ = Eigen::VectorXd(6);
-    ws_acc_cmd_ = Eigen::VectorXd(6);
     tau_fri_ = Eigen::VectorXd(kdl_chain_.getNrOfJoints());
 
-    sub_ = n.subscribe("/lwr/ft_sensor", 1, &CartesianInverseDynamicsController::ForceTorqueCallback, this);
+    sub_ = n.subscribe("/lwr/ft_sensor", 1, &CartesianInverseDynamicsController::force_torque_callback, this);
     return true;
   }
 
@@ -60,15 +59,12 @@ namespace lwr_controllers {
       joint_msr_states_.qdot(i) = joint_handles_[i].getVelocity();
     }
 
-    for(size_t i=0; i<6; i++)
-      ws_acc_cmd_(i) = 0;
-
     R_w_base_ = KDL::Rotation::RotY(-M_PI / 2);
     ws_TA_ = MatrixXd::Zero(6,6);
     ws_TA_dot_ = MatrixXd::Zero(6,6);
   }
 
-  void CartesianInverseDynamicsController::update(const ros::Time& time, const ros::Duration& period)
+  void CartesianInverseDynamicsController::eval_inverse_dynamics (Eigen::VectorXd& commanded_acceleration)
   {
     // get joint states	
     for(size_t i=0; i<joint_handles_.size(); i++) {
@@ -184,14 +180,12 @@ namespace lwr_controllers {
     ////////////////////////////////////////////////////////////////////////
 
     // evaluate tau_cmd
-    tau_fri_ = C_.data + base_J_tip_.data.transpose()* BA_ * (base_F_tip_ + ws_acc_cmd_ - ws_JA_ee_dot_ * joint_msr_states_.qdot.data);
-
-    // set tau
-    for(size_t i = 0; i < joint_handles_.size(); i++) 
-      joint_handles_[i].setCommand(tau_fri_(i));
+    tau_fri_ = C_.data +\
+	base_J_tip_.data.transpose()* BA_ *\
+	(base_F_tip_ + commanded_acceleration - ws_JA_ee_dot_ * joint_msr_states_.qdot.data);
   }
 
-  void CartesianInverseDynamicsController::ForceTorqueCallback(const geometry_msgs::WrenchStamped::ConstPtr& msg)
+  void CartesianInverseDynamicsController::force_torque_callback(const geometry_msgs::WrenchStamped::ConstPtr& msg)
   {
     tf::wrenchMsgToKDL(msg->wrench, wrench_tip_);
   }

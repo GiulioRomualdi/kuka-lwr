@@ -16,6 +16,7 @@ namespace lwr_controllers
 {
   class CartesianInverseDynamicsController: public controller_interface::KinematicChainControllerBase<hardware_interface::EffortJointInterface>
   {
+    friend class HybridImpedanceController;
   public:
     
     CartesianInverseDynamicsController();
@@ -25,9 +26,11 @@ namespace lwr_controllers
     
     void starting(const ros::Time& time);
 
-    void update(const ros::Time& time, const ros::Duration& period);
+    void update(const ros::Time& time, const ros::Duration& period) {}
+
+    void eval_inverse_dynamics (Eigen::VectorXd& commanded_acceleration);
     
-    void ForceTorqueCallback(const geometry_msgs::WrenchStamped::ConstPtr& msg);
+    void force_torque_callback(const geometry_msgs::WrenchStamped::ConstPtr& msg);
   
   private:
 
@@ -54,7 +57,7 @@ namespace lwr_controllers
     boost::scoped_ptr<KDL::ChainJntToJacDotSolver> ee_jacobian_dot_solver_;
 
     Eigen::VectorXd ws_xdot_;
-    Eigen::VectorXd ws_acc_cmd_, tau_fri_;
+    Eigen::VectorXd tau_fri_;
     Eigen::Matrix<double, 6,1> base_F_tip_;
     Eigen::Matrix3d ws_T_, ws_T_dot_;
     Eigen::MatrixXd ws_TA_, ws_TA_dot_;
