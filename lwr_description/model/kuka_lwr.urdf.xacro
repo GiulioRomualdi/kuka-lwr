@@ -415,19 +415,33 @@
 				<cylinder_inertia_def radius="0.03" length="0.01" mass="0.00001"/>
 			</inertial>
 			<visual>
-				<origin xyz="0 0 0.005" rpy="0 0 0"/>
+				<origin xyz="0 0 0.01" rpy="0 0 0"/>
 				<geometry>
-				  <cylinder radius="0.03" length="0.01"/>
+				  <cylinder radius="0.03" length="0.02"/>
 				</geometry>
-			<material name="Black"/>
+			<material name="Red"/>
+			</visual>
+			<visual>
+				<origin xyz="0 0 0.02" rpy="0 0 0"/>
+				<geometry>
+				  <sphere radius="0.01" />
+				</geometry>
+			<material name="Red"/>
 			</visual>
 
 			<collision>
-			<origin xyz="0 0 0.005" rpy="0 0 0"/>
+			<origin xyz="0 0 0.01" rpy="0 0 0"/>
 			<geometry>
-				<cylinder radius="0.03" length="0.01"/>
+				<cylinder radius="0.03" length="0.02"/>
 			</geometry>
 			</collision>
+			<collision>
+				<origin xyz="0 0 0.02" rpy="0 0 0"/>
+				<geometry>
+				  <sphere radius="0.01" />
+				</geometry>
+			</collision>
+
 		</link>
 
 		<xacro:kuka_lwr_gazebo name="${name}"/>
