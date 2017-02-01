@@ -40,6 +40,7 @@ add_message_files(
 add_service_files(
   FILES
   SetCartesianImpedanceCommand.srv
+  HybridSetCmd.srv
 )
 
 generate_messages(
