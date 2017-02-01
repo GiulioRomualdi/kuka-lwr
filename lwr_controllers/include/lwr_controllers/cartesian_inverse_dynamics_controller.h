@@ -53,7 +53,7 @@ namespace lwr_controllers
     KDL::Jacobian base_J_wrist_, base_J_ee_, ws_J_ee_, ws_J_ee_dot_;
     KDL::Rotation R_ws_base_, R_ws_ee_;
     KDL::Frame ee_fk_frame_;
-    KDL::Wrench wrench_wrist_;    
+    KDL::Wrench wrench_wrist_, base_wrench_wrist_;    
     KDL::Chain extended_chain_;
     KDL::Vector p_wrist_ee_; // distance between the origin of the 7-th link and the point of interest (see urdf)
     KDL::Vector p_base_ws_;

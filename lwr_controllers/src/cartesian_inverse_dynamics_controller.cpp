@@ -42,6 +42,7 @@ namespace lwr_controllers {
     ws_J_ee_dot_.resize(kdl_chain_.getNrOfJoints());
 
     wrench_wrist_ = KDL::Wrench();
+    base_wrench_wrist_ = KDL::Wrench();
 
     ws_x_ = Eigen::VectorXd(6);
     ws_xdot_ = Eigen::VectorXd(6);
@@ -172,8 +173,8 @@ namespace lwr_controllers {
     ////////////////////////////////////////////////////////////////////////
     //
 
-    wrench_wrist_ = ee_fk_frame_.M * wrench_wrist_;
-    tf::wrenchKDLToEigen(wrench_wrist_, base_F_wrist_);      
+    base_wrench_wrist_ = ee_fk_frame_.M * wrench_wrist_;
+    tf::wrenchKDLToEigen(base_wrench_wrist_, base_F_wrist_);      
     
     //
     ////////////////////////////////////////////////////////////////////////
@@ -199,6 +200,7 @@ namespace lwr_controllers {
 
   void CartesianInverseDynamicsController::force_torque_callback(const geometry_msgs::WrenchStamped::ConstPtr& msg)
   {
+    
     tf::wrenchMsgToKDL(msg->wrench, wrench_wrist_);
   }
 
