@@ -7,7 +7,7 @@ namespace lwr_controllers {
   
   HybridImpedanceController::HybridImpedanceController()
   {
-    set_p_wrist_ee(0, 0, 0.01);
+    set_p_wrist_ee(0, 0, 0.03);
     set_p_base_ws(-0.77, 0, 0.25);
     set_ws_base_angles(0, -M_PI/2, 0);
   }
@@ -52,12 +52,12 @@ namespace lwr_controllers {
 
     // evaluate forces with the reference point on the wrist (workspace basis)
     KDL::Frame force_transformation(R_ws_base_, R_ws_ee_ * (-p_wrist_ee_)); 
-    ws_F_ee_ = force_transformation * wrench_wrist_;
+    ws_F_ee_ = force_transformation * base_wrench_wrist_;
 
     time_ = time_ + period.toSec();
-    double f = 0.5;
+    double f = 0.1;
     double omega = 2 * M_PI * f;
-    double rho = 0.0;
+    double rho = 0.1;
     double x_trj = rho * cos(omega * time_);
     double y_trj = rho * sin(omega * time_);
     double z_trj = 0.02;
@@ -84,8 +84,15 @@ namespace lwr_controllers {
     acc_cmd_ = Kp_ * err_x_ + Kd_ * (xdot_des_ - ws_xdot_) + xdotdot_des_;
     acc_cmd_(0) = acc_cmd_(0) - ws_F_ee_.force.x();
     acc_cmd_(1) = acc_cmd_(1) - ws_F_ee_.force.y();
+    // acc_cmd_(3) = acc_cmd_(3) - ws_F_ee_.torque.x();
+    // acc_cmd_(4) = acc_cmd_(4) - ws_F_ee_.torque.y();
+    // acc_cmd_(5) = acc_cmd_(5) - ws_F_ee_.torque.z();
+    acc_cmd_(2) = 0.1 * (-10 * ws_xdot_(2) + (-0.4 - ws_F_ee_.force.z()));
 
     set_command(acc_cmd_);
+
+    //std::cout << ((-1) - ws_F_ee_.force.z()) << std::endl;
+    // std::cout << ws_F_ee_.force.z() << "\t"  <<  wrench_wrist_.force.z() <<  "\t" << base_wrench_wrist_.force.x() << std::endl;
   }
     
 } // namespace
