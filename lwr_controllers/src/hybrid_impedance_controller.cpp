@@ -42,6 +42,12 @@ namespace lwr_controllers {
     for(int i = 0; i < 6; i++)
       acc_cmd_(i) = 0;
 
+    double yaw_des, pitch_des, roll_des;
+    R_des_ = KDL::Rotation::RotY(0) * KDL::Rotation::RotY(M_PI);
+    R_des_.GetEulerZYX(yaw_des, pitch_des, roll_des);
+    x_des_ << 0, 0, 0.10, yaw_des, pitch_des, roll_des;
+    xdot_des_ << 0, 0, 0, 0, 0, 0;
+    xdotdot_des_ << 0, 0, 0, 0, 0, 0;
     fz_des_ = 0;
   }
 
