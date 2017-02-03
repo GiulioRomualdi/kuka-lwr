@@ -1,0 +1,47 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="workbench">
+
+    <static>true</static>
+    <link name='workbench'>
+      <pose>-0.9 0 0.48 0 0 0</pose>	
+
+      <collision name='collision'>
+        <geometry>
+          <box>
+            <size>0.725 1.25 0.960</size>
+          </box>
+        </geometry>
+
+        <surface>
+          <friction>
+            <ode>
+              <mu>0</mu>
+              <mu2>0</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <!-- <collide_without_contact>0</collide_without_contact> -->
+            <!-- <collide_without_contact_bitmask>1</collide_without_contact_bitmask> -->
+            <!-- <collide_bitmask>1</collide_bitmask> -->
+            <ode>
+              <kp>100</kp>
+              <kd>1</kd>
+              <!-- <min_depth>0.001</min_depth> -->
+            </ode>
+          </contact>
+        </surface>
+
+      </collision>
+
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.725 1.25 0.960</size>
+          </box>
+        </geometry>
+      </visual>
+    </link>
+
+  </model>
+</sdf>
