@@ -190,12 +190,11 @@ namespace lwr_controllers {
   {
     // evaluate tau_cmd
     tau_fri_ = C_.data +\
-	base_J_wrist_.data.transpose() * BA_ *\
-      (base_F_wrist_ + commanded_acceleration - ws_JA_ee_dot_ * joint_msr_states_.qdot.data);
+	base_J_wrist_.data.transpose() *\
+      (-base_F_wrist_ + BA_ * (commanded_acceleration - ws_JA_ee_dot_ * joint_msr_states_.qdot.data));
 
     for(int i=0; i<6; i++)
       joint_handles_[i].setCommand(tau_fri_(i));
-
   }
 
   void CartesianInverseDynamicsController::force_torque_callback(const geometry_msgs::WrenchStamped::ConstPtr& msg)

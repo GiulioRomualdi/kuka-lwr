@@ -45,7 +45,7 @@ namespace lwr_controllers {
     double yaw_des, pitch_des, roll_des;
     R_des_ = KDL::Rotation::RotY(0) * KDL::Rotation::RotY(M_PI);
     R_des_.GetEulerZYX(yaw_des, pitch_des, roll_des);
-    x_des_ << 0, 0, 0.10, yaw_des, pitch_des, roll_des;
+    x_des_ << 0, 0, 0.1, yaw_des, pitch_des, roll_des;
     xdot_des_ << 0, 0, 0, 0, 0, 0;
     xdotdot_des_ << 0, 0, 0, 0, 0, 0;
     fz_des_ = 0;
@@ -94,12 +94,12 @@ namespace lwr_controllers {
     err_x_(5) = angles::normalize_angle(err_x_(5));
 
     acc_cmd_ = Kp_ * err_x_ + Kd_ * (xdot_des_ - ws_xdot_) + xdotdot_des_;
-    acc_cmd_(0) = acc_cmd_(0) - ws_F_ee_.force.x();
-    acc_cmd_(1) = acc_cmd_(1) - ws_F_ee_.force.y();
-    // acc_cmd_(3) = acc_cmd_(3) - ws_F_ee_.torque.x();
-    // acc_cmd_(4) = acc_cmd_(4) - ws_F_ee_.torque.y();
-    // acc_cmd_(5) = acc_cmd_(5) - ws_F_ee_.torque.z();
-    acc_cmd_(2) = 0.1 * (-10 * ws_xdot_(2) + (fz_des_ - ws_F_ee_.force.z()));
+    acc_cmd_(0) = acc_cmd_(0) + ws_F_ee_.force.x();
+    acc_cmd_(1) = acc_cmd_(1) + ws_F_ee_.force.y();
+    acc_cmd_(3) = acc_cmd_(3) + ws_F_ee_.torque.x();
+    acc_cmd_(4) = acc_cmd_(4) + ws_F_ee_.torque.y();
+    acc_cmd_(5) = acc_cmd_(5) + ws_F_ee_.torque.z();
+    acc_cmd_(2) = 0.05 * (-100 * ws_xdot_(2) + (fz_des_ + ws_F_ee_.force.z()));
 
     set_command(acc_cmd_);
 
@@ -113,6 +113,7 @@ namespace lwr_controllers {
     double yaw_des, pitch_des, roll_des;
     R_des_ = KDL::Rotation::RotY(0) * KDL::Rotation::RotY(M_PI);
     R_des_.GetEulerZYX(yaw_des, pitch_des, roll_des);
+    //    x_des_ << req.command[0], req.command[1], 0, yaw_des, pitch_des, roll_des;
     x_des_ << req.command[0], req.command[1], 0, yaw_des, pitch_des, roll_des;
     xdot_des_ << 0, 0, 0, 0, 0, 0;
     xdotdot_des_ << 0, 0, 0, 0, 0, 0;
