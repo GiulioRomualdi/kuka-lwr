@@ -50,16 +50,15 @@ lwr:
   # Cartesian Position Controller
   cartesian_position_controller:
     type: lwr_controllers/CartesianPositionController
-    root_name: lwr_base_link
+    root_name: vito_anchor
     tip_name: lwr_7_link
 
   # Hybrid Impedance Controller 
   # (Spong, Journal of Robotics And Automation, Vol. 4, Issue 5, 1988)
   hybrid_impedance_controller:
     type: lwr_controllers/HybridImpedanceController
-    root_name: lwr_base_link
+    root_name: vito_anchor
     tip_name: lwr_7_link
-
 
   # Cartesian Inverse Dynamics Controller
   cartesian_inverse_dynamics_controller:
