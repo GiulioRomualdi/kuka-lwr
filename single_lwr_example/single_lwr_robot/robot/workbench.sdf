@@ -1,31 +1,86 @@
 <?xml version='1.0'?>
-<sdf version='1.4'>
+<sdf version="1.4">
+
   <model name="workbench">
 
-    <static>true</static>
+    <static>false</static>
+
     <link name='workbench'>
-      <pose>-0.9 0 0.48 0 0 0</pose>	
+    <pose>-0.9 0 0.43 0 0 0</pose>	
+      <inertial name='inertial'>
+        <mass>1000</mass>
+        <inertia>
+          <ixx>191.841</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>105.435</iyy>
+          <iyz>0</iyz>
+          <izz>174.010</izz>
+        </inertia>
+      </inertial>
 
       <collision name='collision'>
         <geometry>
           <box>
-            <size>0.725 1.25 0.960</size>
+            <size>0.725 1.25 0.860</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.725 1.25 0.860</size>
+          </box>
+        </geometry>
+        <material>
+	  <script>
+	    <uri>file://media/materials/scripts/gazebo.material</uri>
+	    <name>Gazebo/Wood</name>
+	  </script>
+        </material>
+      </visual>
+    </link>
+
+   <joint name="fixed" type="fixed">
+      <parent>workbench</parent>
+      <child>foam</child>
+   </joint>
+
+    <link name='foam'>
+    <pose>-0.9 0 0.910 0 0 0</pose>	
+      <inertial name='inertial'>
+        <mass>1.74</mass>
+        <inertia>
+          <ixx>0.2280</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0776</iyy>
+          <iyz>0</iyz>
+          <izz>0.3027</izz>
+        </inertia>
+      </inertial>
+
+      <collision name='collision'>
+        <geometry>
+          <box>
+            <size>0.725 1.25 0.1</size>
           </box>
         </geometry>
 
-        <surface>
-          <friction>
-            <ode>
-              <mu>0</mu>
-              <mu2>0</mu2>
-            </ode>
-          </friction>
+        <surface name ='surface'>
+          <!-- <friction> -->
+          <!--   <ode> -->
+          <!--     <mu>0</mu> -->
+          <!--     <mu2>0</mu2> -->
+          <!--   </ode> -->
+          <!-- </friction> -->
           <contact>
             <!-- <collide_without_contact>0</collide_without_contact> -->
             <!-- <collide_without_contact_bitmask>1</collide_without_contact_bitmask> -->
             <!-- <collide_bitmask>1</collide_bitmask> -->
             <ode>
-              <kp>100</kp>
+              <kp>200</kp>
               <kd>1</kd>
               <!-- <min_depth>0.001</min_depth> -->
             </ode>
@@ -37,7 +92,7 @@
       <visual name='visual'>
         <geometry>
           <box>
-            <size>0.725 1.25 0.960</size>
+            <size>0.725 1.25 0.1</size>
           </box>
         </geometry>
       </visual>
