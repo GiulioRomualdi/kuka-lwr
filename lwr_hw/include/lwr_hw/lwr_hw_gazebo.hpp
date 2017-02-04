@@ -3,7 +3,6 @@
 
 // ROS
 #include <angles/angles.h>
-// #include <pluginlib/class_list_macros.h>
 
 // Gazebo hook
 #include <gazebo/common/common.hh>
@@ -116,40 +115,16 @@ public:
         break;
 
       case JOINT_IMPEDANCE:
-        // compute the fdyn term
+
+	// compute gravity effort
         f_dyn_solver_->JntToGravity(joint_position_kdl_, gravity_effort_);
-	f_dyn_solver_->JntToCoriolis(joint_position_kdl_, joint_velocity_kdl_, coriolis_effort_);
-	if (i_dyn_solver_->CartToJnt(joint_position_kdl_, 
-				     joint_velocity_kdl_, 
-				     joint_acceleration_kdl_, 
-				     joint_wrenches_,
-				     fdyn_effort_) < 0)
-	  {
-	    std::cout << "WARNING:i dyn failed" << std::endl;
-	  }
 
         for(int j=0; j < n_joints_; j++)
         {
           // replicate the joint impedance control strategy
           // tau = k (q_FRI - q_msr) + tau_FRI + D(q_msr) + f_dyn(q_msr)
-	  // for now tau = tau_FRI + f_dyn
-	  //const double effort = fdyn_effort_(j) + joint_effort_command_[j];
-	  double static_friction_effort = joint_velocity_kdl_(j) >= 0 ? 0.1 : -0.1;
 
-	  // inverse dynamics (idsolver) + damping compensation + tau_FRI
-	  //const double effort =  joint_effort_command_[j] + fdyn_effort_(j) + 1 * joint_velocity_kdl_(j) ;
-
-	  // C*qdd + G + damping compensation + tau_FRI
-	  //const double effort = 1 * joint_velocity_kdl_(j)  +		\
-	  //gravity_effort_(j) + coriolis_effort_(j) * joint_velocity_kdl_(j) + joint_effort_command_[j];
-
-	  // C*qdd + G  + tau_FRI
-	  //const double effort = gravity_effort_(j) + coriolis_effort_(j) * joint_velocity_kdl_(j) + joint_effort_command_[j];
-
-	  // inverse dynamics (idsolver) + tau_FRI
-	  //const double effort = fdyn_effort_(j) + joint_effort_command_[j];
-
-	  // gravity compensation only (it seems that fdyn = G)
+	  // for now tau = tau_FRI + G
 	  const double effort = gravity_effort_(j) + joint_effort_command_[j];
 	  
           sim_joints_[j]->SetForce(0, effort);
