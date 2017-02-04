@@ -1,0 +1,4 @@
+ForceTorqueSensorFilter:
+  name: ForceTorqueSensorFilter
+  type: MultiChannelMeanFilterDouble
+  params: {number_of_observations: 5}
